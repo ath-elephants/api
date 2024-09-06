@@ -4,22 +4,24 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 
-class STaskAdd(BaseModel):
-    name: str
-    description: str | None = None
 
-
-class STask(STaskAdd):
-    id: int
-    model_config = ConfigDict(from_attributes=True)
+class InitQ(BaseModel):
+    body: str
+    name: str | None = None
+    surname: str | None = None
+    # description: str | None = None
 
 
 app = FastAPI()
 
 
 @app.post("/")
-async def add_task(task: STaskAdd = Depends()):
-    return {"data": task}
+async def answer(question: InitQ = Depends()):
+    print(question.body)
+    if question.body == "1":
+        return {"answer": "Hello, 1"}
+    else:
+        return {"answer": "Hello, something else"}
 
 
 @app.get("/")
