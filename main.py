@@ -17,11 +17,7 @@ app = FastAPI()
 
 @app.post("/")
 async def answer(question: InitQ = Depends()):
-    print(question.body)
-    if question.body == "1":
-        return {"answer": "Hello, 1"}
-    else:
-        return {"answer": "Hello, something else"}
+        return {"answer": f"Hello, {question.name}"}
 
 
 @app.get("/")
