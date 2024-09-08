@@ -1,22 +1,17 @@
-from fastapi import APIRouter, Depends
-
-from repository import TaskRepository
-from schemas import STask, STaskAdd, STaskId
+from fastapi import APIRouter
+from repository import SessionRepository
+from schemas import UserQuery
 
 
 router = APIRouter(
-    prefix='/tasks',
-    tags=['Tasks'],
+    prefix='/api/v1',
+    tags=['Answers'],
 )
 
 
-@router.post('')
-async def add_task(task: STaskAdd = Depends()) -> STaskId:
-    new_task_id = await TaskRepository.add_task(task)
-    return {'id': new_task_id}
+@router.post('/get_answer/')
+async def get_answer(query: UserQuery):
+    session_id = query.session_id
+    question_number = await SessionRepository.update_question_count(session_id)
 
-
-@router.get('')
-async def get_tasks() -> list[STask]:
-    tasks = await TaskRepository.get_tasks()
-    return tasks
+    return {'answer': f'{question_number}'}

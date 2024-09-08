@@ -1,25 +1,47 @@
 from sqlalchemy import select
+from datetime import datetime, timedelta
 
-from database import TaskOrm, new_session
-from schemas import STask, STaskAdd
+from database import Session, new_session
 
 
-class TaskRepository:
+class SessionRepository:
     @classmethod
-    async def add_task(cls, task: STaskAdd) -> int:
+    async def get_last_session(cls, session_id: str) -> Session | None:
         async with new_session() as session:
-            data = task.model_dump()
-            new_task = TaskOrm(**data)
-            session.add(new_task)
+            query = (
+                select(Session)
+                .where(Session.session_id == session_id)
+                .order_by(Session.timestamp.desc())
+            )
+            result = await session.execute(query)
+            return result.scalar_one_or_none()
+
+    @classmethod
+    async def add_session(cls, session_id: str):
+        async with new_session() as session:
+            new_db_session = Session(session_id=session_id)
+            session.add(new_db_session)
             await session.flush()
             await session.commit()
-            return new_task.id
 
     @classmethod
-    async def get_tasks(cls) -> list[STask]:
+    def is_new_session(cls, last_timestamp: datetime) -> bool:
+        time_diff = datetime.now() - last_timestamp
+        return time_diff > timedelta(minutes=30)
+
+    @classmethod
+    async def update_question_count(cls, session_id: str) -> int:
+        last_session = await cls.get_last_session(session_id)
+
+        if not last_session or cls.is_new_session(last_session.timestamp):
+            await cls.add_session(session_id)
+            return 1
+
+        new_question_count = last_session.question_count % 3 + 1
+
         async with new_session() as session:
-            query = select(TaskOrm)
-            result = await session.execute(query)
-            task_models = result.scalars().all()
-            tasks = [STask.model_validate(task_model) for task_model in task_models]
-            return tasks
+            last_session.question_count = new_question_count
+            last_session.timestamp = datetime.now()
+            await session.commit()
+
+        return new_question_count

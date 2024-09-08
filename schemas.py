@@ -1,15 +1,17 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from typing import List
 
 
-class STaskId(BaseModel):
-    id: int
+class HistoryMessage(BaseModel):
+    role: str  # in ('user', 'assistant')
+    content: str
 
 
-class STaskAdd(BaseModel):
-    name: str
-    description: str | None = None
+class History(BaseModel):
+    session_id: str
+    history: List[HistoryMessage]
 
 
-class STask(STaskAdd):
-    id: int
-    model_config = ConfigDict(from_attributes=True)
+class UserQuery(BaseModel):
+    session_id: str
+    history: list[dict]
