@@ -2,8 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from database import create_tables, delete_tables
-from router import router as tasks_router
+from utils.database import create_tables, delete_tables
+from utils.router import router
 
 
 @asynccontextmanager
@@ -20,7 +20,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get('/')
 async def home():
-    return 'Hello, World!'
+    return 200
 
 
-app.include_router(tasks_router)
+app.include_router(router)

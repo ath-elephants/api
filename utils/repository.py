@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from datetime import datetime, timedelta
 
-from database import Session, new_session
+from utils.database import Session, new_session
 
 
 class SessionRepository:
@@ -12,12 +12,13 @@ class SessionRepository:
                 select(Session)
                 .where(Session.session_id == session_id)
                 .order_by(Session.timestamp.desc())
+                .limit(1)
             )
             result = await session.execute(query)
             return result.scalar_one_or_none()
 
     @classmethod
-    async def add_session(cls, session_id: str):
+    async def add_session(cls, session_id: str, question_count: int):
         async with new_session() as session:
             new_db_session = Session(session_id=session_id)
             session.add(new_db_session)
@@ -31,17 +32,16 @@ class SessionRepository:
 
     @classmethod
     async def update_question_count(cls, session_id: str) -> int:
-        last_session = await cls.get_last_session(session_id)
-
-        if not last_session or cls.is_new_session(last_session.timestamp):
-            await cls.add_session(session_id)
-            return 1
-
-        new_question_count = last_session.question_count % 3 + 1
-
         async with new_session() as session:
-            last_session.question_count = new_question_count
-            last_session.timestamp = datetime.now()
-            await session.commit()
+            last_session = await cls.get_last_session(session_id)
 
-        return new_question_count
+            if not last_session or cls.is_new_session(last_session.timestamp):
+                print("Start new session")
+                await cls.add_session(session_id, 1)
+                return 1
+
+            print("Last session question count:", last_session.question_count)
+            new_question_count = last_session.question_count % 3 + 1
+            await cls.add_session(session_id, new_question_count)
+
+            return last_session.question_count

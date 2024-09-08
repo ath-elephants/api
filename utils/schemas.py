@@ -10,8 +10,3 @@ class HistoryMessage(BaseModel):
 class History(BaseModel):
     session_id: str
     history: List[HistoryMessage]
-
-
-class UserQuery(BaseModel):
-    session_id: str
-    history: list[dict]

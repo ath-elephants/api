@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from repository import SessionRepository
-from schemas import UserQuery
+from utils.repository import SessionRepository
+from utils.schemas import History
 
 
 router = APIRouter(
@@ -10,7 +10,7 @@ router = APIRouter(
 
 
 @router.post('/get_answer/')
-async def get_answer(query: UserQuery):
+async def get_answer(query: History):
     session_id = query.session_id
     question_number = await SessionRepository.update_question_count(session_id)
 
