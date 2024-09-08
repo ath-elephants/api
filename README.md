@@ -5,7 +5,6 @@
 ```bash
 sudo apt-get update
 sudo apt-get install git
-sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -20,5 +19,5 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 git clone https://github.com/ath-elephants/api.git
 cd api
 
-docker-compose up --build
+docker compose up --build
 ```
