@@ -1,3 +1,3 @@
-Статейка, по которой делал
+# api
 
-https://habr.com/ru/companies/selectel/articles/796669/
+Репозиторий для подготовки backend части проекта
