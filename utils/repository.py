@@ -1,5 +1,6 @@
-from sqlalchemy import select
 from datetime import datetime, timedelta
+
+from sqlalchemy import select
 
 from utils.database import Session, new_session
 
@@ -20,8 +21,12 @@ class SessionRepository:
     @classmethod
     async def add_session(cls, session_id: str, question_count: int):
         async with new_session() as session:
-            new_db_session = Session(session_id=session_id)
+            new_db_session = Session(
+                session_id=session_id,
+                question_count=question_count,
+            )
             session.add(new_db_session)
+
             await session.flush()
             await session.commit()
 
@@ -36,11 +41,9 @@ class SessionRepository:
             last_session = await cls.get_last_session(session_id)
 
             if not last_session or cls.is_new_session(last_session.timestamp):
-                print("Start new session")
                 await cls.add_session(session_id, 1)
                 return 1
 
-            print("Last session question count:", last_session.question_count)
             new_question_count = last_session.question_count % 3 + 1
             await cls.add_session(session_id, new_question_count)
 
