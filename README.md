@@ -18,6 +18,7 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 git clone https://github.com/ath-elephants/api.git
+cd api
 
-docker build . --tag fastapi_app && docker run -p 80:80 fastapi_app
+docker-compose up --build
 ```

@@ -39,7 +39,7 @@ if st.button('Отправить'):
 
         try:
             response = requests.post(
-                'http://localhost:8000/api/v1/get_answer/',
+                'http://fastapi:80/api/v1/get_answer/',
                 json=history_message,
             )
             response.raise_for_status()
