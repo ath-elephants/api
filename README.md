@@ -1,6 +1,6 @@
 # api
 
-Репозиторий для подготовки backend части проекта
+Репозиторий для backend части проекта
 
 ```bash
 sudo apt-get update

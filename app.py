@@ -3,8 +3,15 @@ import uuid
 import requests
 import streamlit as st
 from streamlit_cookies_manager import EncryptedCookieManager
+import time
 
 from utils.settings import CATEGORIES
+
+
+def response_generator(response: str):
+    for word in response.split():
+        yield word + ' '
+        time.sleep(0.05)
 
 
 cookies = EncryptedCookieManager(password='password')
@@ -27,27 +34,38 @@ category = st.selectbox(
     CATEGORIES,
 )
 
-text = st.text_area('Введите текст обращения')
 
-if st.button('Отправить'):
-    if text:
-        content = category + '/n' + text
-        history_message = {
-            'session_id': session_id,
-            'history': [{'role': 'user', 'content': content}],
-        }
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
 
-        try:
-            response = requests.post(
-                'http://fastapi:80/api/v1/get_answer/',
-                json=history_message,
-            )
-            response.raise_for_status()
-            answer = response.json()
+for message in st.session_state.messages:
+    with st.chat_message(message['role']):
+        st.markdown(message['content'])
 
-            st.write('Ответ:', answer['answer'])
 
-        except requests.exceptions.RequestException as e:
-            st.error(f'Произошла ошибка: {e}')
-    else:
-        st.error('Пожалуйста, введите текст обращения')
+if prompt := st.chat_input('Введите текст обращения'):
+    st.session_state.messages.append({'role': 'user', 'content': prompt})
+    with st.chat_message('user'):
+        st.markdown(prompt)
+
+    content = category + '/n' + prompt
+    history_message = {
+        'session_id': session_id,
+        'history': [{'role': 'user', 'content': content}],
+    }
+
+    try:
+        response = requests.post(
+            'http://fastapi:80/api/v1/get_answer/',
+            json=history_message,
+        )
+        response.raise_for_status()
+        answer = response.json()
+
+        with st.chat_message('assistant'):
+            response = st.write_stream(response_generator(answer['answer']))
+
+        st.session_state.messages.append({'role': 'assistant', 'content': response})
+
+    except requests.exceptions.RequestException as e:
+        st.error(f'Произошла ошибка: {e}')
