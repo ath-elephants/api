@@ -1,11 +1,11 @@
+import time
 import uuid
 
 import requests
 import streamlit as st
 from streamlit_cookies_manager import EncryptedCookieManager
-import time
 
-from utils.settings import CATEGORIES
+from api.settings import CATEGORIES
 
 
 def response_generator(response: str):

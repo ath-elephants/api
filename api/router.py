@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from utils.repository import SessionRepository
-from utils.schemas import History
+from api.repository import SessionRepository
+from api.schemas import History
 
 
 router = APIRouter(
