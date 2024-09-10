@@ -27,6 +27,18 @@ if session_id is None:
     cookies.save()
 
 
+st.logo(
+    './images/x5_tech_logo.png',
+    link='https://x5-tech.ru/',
+)
+st.html("""
+    <style>
+    [alt=Logo] {
+        height: 3rem;
+    }
+    </style>
+""")
+
 st.title('Поддержка пользователей')
 
 category = st.selectbox(
