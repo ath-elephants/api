@@ -37,7 +37,7 @@ class SessionRepository:
 
     @classmethod
     async def update_question_count(cls, session_id: str) -> int:
-        async with new_session() as session:
+        async with new_session() as _:
             last_session = await cls.get_last_session(session_id)
 
             if not last_session or cls.is_new_session(last_session.timestamp):

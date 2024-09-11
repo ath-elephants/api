@@ -9,10 +9,8 @@ from api.router import router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
-    print('Database is ready')
     yield
     await delete_tables()
-    print('Database has been cleared')
 
 
 app = FastAPI(lifespan=lifespan)

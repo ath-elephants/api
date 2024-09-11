@@ -37,7 +37,7 @@ CATEGORIES: list[str] = [
 CHAT_MODEL_NAME: str = 'llama3.1:8b'
 EMBED_MODEL_NAME: str = 'nomic-embed-text:v1.5'
 
-CSV_FILE_NAME: str = 'LK_modified.xlsx - Вопрос ответ.csv'
+CSV_FILE_NAME: str = 'qa-chat-bot-data.csv'
 
 
 CONTEXTUALIZE_Q_SYSTEM_PROMPT: str = """
