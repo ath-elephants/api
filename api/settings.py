@@ -1,51 +1,13 @@
-CATEGORIES: list[str] = [
-    'Категория не выбрана',
-    'Личный кабинет',
-    'Поддержка',
-    'Табель',
-    'Отпуск',
-    'Удаленная работа',
-    'Увольнение',
-    'Моя карьера',
-    'Беременность и роды',
-    'Отгул',
-    'Прием на работу',
-    'Заявки',
-    'Зарплата',
-    'Электронная цифровая подпись',
-    'График работы',
-    'Больничный',
-    'Документооборот',
-    'Налоговый вычет',
-    'Оператор',
-    'Уход за больным',
-    'Справка',
-    'Материальная помощь',
-    'Автомобиль',
-    'Обучение',
-    'Доверенность',
-    'Командировка',
-    'ДМС',
-    'Перевод',
-    'Выручай-карта',
-    'Служба безопасности',
-    'Машиночитаемая доверенность',
-    'SED',
-]
-
-
-CHAT_MODEL_NAME: str = 'llama3.1:8b'
-EMBED_MODEL_NAME: str = 'nomic-embed-text:v1.5'
+CHAT_OLLAMA_MODEL_NAME: str = 'gemma2:2b'
+EMBED_HF_MODEL_NAME: str = 'ai-forever/ru-en-RoSBERTa'
 
 CSV_FILE_NAME: str = 'qa-chat-bot-data.csv'
 
 
 CONTEXTUALIZE_Q_SYSTEM_PROMPT: str = """
-    Given a chat history and the latest user question
-    which might reference context in the chat history,
-    formulate a standalone question which can be understood
-    without the chat history. Do NOT answer the question,
-    just reformulate it if needed and otherwise return it as is.
+    Given a chat history and the latest user question which might reference
+    context in the chat history, formulate a standalone question which can be
+    understood without the chat history. Do NOT answer the question, just
 """
 
 SYSTEM_PROMPT: str = (

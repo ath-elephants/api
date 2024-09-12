@@ -1,47 +1,21 @@
-import time
-import uuid
-
 import requests
 import streamlit as st
-from extra_streamlit_components import CookieManager
 
-from api.settings import CATEGORIES
-
-
-def response_generator(response: str):
-    for word in response.split():
-        yield word + ' '
-        time.sleep(0.05)
-
-
-cookie_manager = CookieManager()
-cookies = cookie_manager.get_all()
-session_id = cookie_manager.get(cookie='ajs_anonymous_id')
-
-if session_id is None:
-    session_id = str(uuid.uuid4())
-    cookie_manager.set('ajs_anonymous_id', session_id)
-
-
-st.logo(
-    './images/x5_tech_logo.png',
-    link='https://x5-tech.ru/',
+from ui.messages import (
+    CATEGORIES,
 )
-st.html("""
-    <style>
-    [alt=Logo] {
-        height: 3rem;
-    }
-    </style>
-""")
+from ui.utils import (
+    response_generator,
+    startup_page_ui,
+)
 
-st.title('Поддержка пользователей')
+
+session_id = startup_page_ui()
 
 category = st.selectbox(
     'Выберите категорию обращения',
     CATEGORIES,
 )
-
 
 if 'messages' not in st.session_state:
     st.session_state.messages = []
@@ -52,9 +26,10 @@ for message in st.session_state.messages:
 
 
 if prompt := st.chat_input('Введите текст обращения'):
-    st.session_state.messages.append({'role': 'user', 'content': prompt})
     with st.chat_message('user'):
         st.markdown(prompt)
+
+    st.session_state.messages.append({'role': 'user', 'content': prompt})
 
     content = category + '/n' + prompt
     history_message = {
