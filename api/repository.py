@@ -44,7 +44,6 @@ class SessionRepository:
                 await cls.add_session(session_id, 1)
                 return 1
 
-            new_question_count = last_session.question_count % 3 + 1
+            new_question_count = last_session.question_count % 2 + 1
             await cls.add_session(session_id, new_question_count)
-
-            return last_session.question_count
+            return new_question_count

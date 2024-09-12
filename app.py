@@ -3,7 +3,7 @@ import uuid
 
 import requests
 import streamlit as st
-from streamlit_cookies_manager import EncryptedCookieManager
+from extra_streamlit_components import CookieManager
 
 from api.settings import CATEGORIES
 
@@ -14,17 +14,13 @@ def response_generator(response: str):
         time.sleep(0.05)
 
 
-cookies = EncryptedCookieManager(password='password')
-if not cookies.ready:
-    st.stop()
-
-
-session_id = cookies.get('session_id')
+cookie_manager = CookieManager()
+cookies = cookie_manager.get_all()
+session_id = cookie_manager.get(cookie='ajs_anonymous_id')
 
 if session_id is None:
     session_id = str(uuid.uuid4())
-    cookies['session_id'] = session_id
-    cookies.save()
+    cookie_manager.set('ajs_anonymous_id', session_id)
 
 
 st.logo(
