@@ -8,11 +8,12 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from langchain_community.document_loaders import CSVLoader
+from more_itertools import chunked
 
 from api.settings import (
-    CHAT_OLLAMA_MODEL_NAME,
+    CHAT_MODEL_NAME,
     CSV_FILE_NAME,
-    EMBED_HF_MODEL_NAME,
+    EMBED_MODEL_NAME,
     CONTEXTUALIZE_Q_SYSTEM_PROMPT,
     SYSTEM_PROMPT,
 )
@@ -46,11 +47,21 @@ def create_conversational_rag_chain(
     embeddings = HuggingFaceEmbeddings(model_name=embed_name)
     llm = ChatOllama(model=model_name, temperature=temperature)
 
-    vectorstore = Chroma.from_documents(
+    chroma_collection = Chroma(
         collection_name='question_answer_collection',
-        documents=loader_train.load(),
-        embedding=embeddings,
+        embedding_function=embeddings,
+        persist_directory='./vectorestore/',
     )
+
+    documents = loader_train.load()
+    batch_size = 3000
+    batches = list(chunked(documents, batch_size))
+
+    for batch in batches:
+        chroma_collection.add_documents(documents=batch)
+
+    vectorstore = chroma_collection
+
     retriever = vectorstore.as_retriever(
         search_type=search_type,
         search_kwargs={'num_answers': num_answers, 'lambda_mult': lambda_mult},
@@ -87,9 +98,9 @@ def create_conversational_rag_chain(
 
 
 conversational_rag_chain = create_conversational_rag_chain(
-    model_name=CHAT_OLLAMA_MODEL_NAME,
+    model_name=CHAT_MODEL_NAME,
     temperature=0.1,
-    embed_name=EMBED_HF_MODEL_NAME,
+    embed_name=EMBED_MODEL_NAME,
     file_path=CSV_FILE_NAME,
     contextualize_q_system_prompt=CONTEXTUALIZE_Q_SYSTEM_PROMPT,
     system_prompt=SYSTEM_PROMPT,

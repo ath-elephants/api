@@ -1,8 +1,8 @@
 import gdown
 
 
-CHAT_OLLAMA_MODEL_NAME: str = 'gemma2:2b'
-EMBED_HF_MODEL_NAME: str = 'ai-forever/ru-en-RoSBERTa'
+CHAT_MODEL_NAME: str = 'gemma2:2b'
+EMBED_MODEL_NAME: str = 'ai-forever/ru-en-RoSBERTa'
 
 CSV_FILE_NAME: str = 'qa-chat-bot-data.csv'
 CSV_FILE_URL: str = 'https://drive.google.com/uc?id=1KAXDtvO5gNpG5FWv7RYyG1uW3ybi64TJ'
