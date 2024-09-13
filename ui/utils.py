@@ -36,17 +36,17 @@ def startup_page_ui() -> str:
 
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
-    # st.logo(
-    #     'x5_tech_logo.png',
-    #     link='https://x5-tech.ru/',
-    # )
-    # st.html("""
-    #     <style>
-    #     [alt=Logo] {
-    #         height: 3rem;
-    #     }
-    #     </style>
-    # """)
+    st.logo(
+        './ui/x5_tech_logo.png',
+        link='https://x5-tech.ru/',
+    )
+    st.html("""
+        <style>
+        [alt=Logo] {
+            height: 3rem;
+        }
+        </style>
+    """)
 
     st.title('Поддержка пользователей')
 
