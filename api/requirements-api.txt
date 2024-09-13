@@ -1,3 +1,4 @@
+aiosqlite==0.20.0
 fastapi==0.114.1
 gdown==5.2.0
 langchain==0.2.16
