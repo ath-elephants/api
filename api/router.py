@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 
+from typing import List
+from pydantic import BaseModel
+
 from api.model import get_rag_answer
 from api.repository import SessionRepository
-from typing import List
-
-from pydantic import BaseModel
 
 
 class HistoryMessage(BaseModel):

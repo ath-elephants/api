@@ -8,7 +8,7 @@
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y git
+sudo apt-get install -y --no-install-recommends git
 
 git clone https://github.com/ath-elephants/qa-chat-bot.git
 cd qa-chat-bot

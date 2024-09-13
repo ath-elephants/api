@@ -5,13 +5,14 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_ollama import ChatOllama, OllamaEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_ollama import ChatOllama
 from langchain_community.document_loaders import CSVLoader
 
 from api.settings import (
-    CHAT_MODEL_NAME,
+    CHAT_OLLAMA_MODEL_NAME,
     CSV_FILE_NAME,
-    EMBED_MODEL_NAME,
+    EMBED_HF_MODEL_NAME,
     CONTEXTUALIZE_Q_SYSTEM_PROMPT,
     SYSTEM_PROMPT,
 )
@@ -42,7 +43,7 @@ def create_conversational_rag_chain(
         content_columns=['question', 'content'],
         encoding='utf-8',
     )
-    embeddings = OllamaEmbeddings(model=embed_name)
+    embeddings = HuggingFaceEmbeddings(model_name=embed_name)
     llm = ChatOllama(model=model_name, temperature=temperature)
 
     vectorstore = Chroma.from_documents(
@@ -86,9 +87,9 @@ def create_conversational_rag_chain(
 
 
 conversational_rag_chain = create_conversational_rag_chain(
-    model_name=CHAT_MODEL_NAME,
+    model_name=CHAT_OLLAMA_MODEL_NAME,
     temperature=0.1,
-    embed_name=EMBED_MODEL_NAME,
+    embed_name=EMBED_HF_MODEL_NAME,
     file_path=CSV_FILE_NAME,
     contextualize_q_system_prompt=CONTEXTUALIZE_Q_SYSTEM_PROMPT,
     system_prompt=SYSTEM_PROMPT,

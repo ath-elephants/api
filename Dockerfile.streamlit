@@ -1,9 +1,13 @@
 # Dockerfile for Streamlit
 FROM python:3.11-slim
 
-COPY . /app
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl build-essential
+
+COPY ./ui/requirements-ui.txt /app/ui/requirements-ui.txt
 WORKDIR /app
+RUN pip install --no-cache-dir -r ./ui/requirements-ui.txt
 
-RUN pip install -r requirements.txt
+COPY ./ui /app/ui
 
-CMD ["streamlit", "run", "app.py", "--server.port", "8501"]
+CMD ["streamlit", "run", "ui/app.py", "--server.port", "8501"]

@@ -13,17 +13,17 @@ def startup_page_ui() -> str:
         session_id = str(uuid.uuid4())
         cookie_manager.set('ajs_anonymous_id', session_id)
 
-    st.logo(
-        './ui/x5_tech_logo.png',
-        link='https://x5-tech.ru/',
-    )
-    st.html("""
-        <style>
-        [alt=Logo] {
-            height: 3rem;
-        }
-        </style>
-    """)
+    # st.logo(
+    #     'x5_tech_logo.png',
+    #     link='https://x5-tech.ru/',
+    # )
+    # st.html("""
+    #     <style>
+    #     [alt=Logo] {
+    #         height: 3rem;
+    #     }
+    #     </style>
+    # """)
 
     st.title('Поддержка пользователей')
 

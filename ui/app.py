@@ -1,10 +1,8 @@
 import requests
 import streamlit as st
 
-from ui.messages import (
-    CATEGORIES,
-)
-from ui.utils import (
+from messages import CATEGORIES
+from utils import (
     response_generator,
     startup_page_ui,
 )
