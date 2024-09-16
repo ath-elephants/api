@@ -4,6 +4,7 @@ import gdown
 CHAT_MODEL_NAME: str = 'gemma2:2b'
 EMBED_MODEL_NAME: str = 'ai-forever/ru-en-RoSBERTa'
 
+
 CSV_FILE_NAME: str = 'qa-chat-bot-data.csv'
 CSV_FILE_URL: str = 'https://drive.google.com/uc?id=1KAXDtvO5gNpG5FWv7RYyG1uW3ybi64TJ'
 
@@ -37,7 +38,8 @@ config: dict[str, float] = {
     'chat_model_name': CHAT_MODEL_NAME,
     'temperature': 0.1,
     'embed_model_name': EMBED_MODEL_NAME,
-    'persist_dir_path': './vectorestore/',
+    'persist_directory': './vectorestore/',
+    'collection_name': 'qa-chat-bot',
     'file_path': CSV_FILE_NAME,
     'search_type': 'mmr',
     'num_answers': 5,

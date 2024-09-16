@@ -12,7 +12,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from more_itertools import chunked
 
-from api.settings import config
+from settings import config
 
 
 def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
@@ -38,7 +38,8 @@ def create_conversational_rag_chain(
     chat_model_name: str,
     temperature: float,
     embed_model_name: str,
-    persist_dir_path: str,
+    persist_directory: str,
+    collection_name: str,
     file_path: str,
     search_type: str,
     num_answers: int,
@@ -52,11 +53,11 @@ def create_conversational_rag_chain(
         model_kwargs={'device': 'cuda'},
     )
 
-    if not (os.path.exists(persist_dir_path) and os.listdir(persist_dir_path)):
+    if not (os.path.exists(persist_directory) and os.listdir(persist_directory)):
         vectorstore = Chroma(
-            collection_name='qa-chat-bot',
+            collection_name=collection_name,
             embedding_function=embeddings,
-            persist_directory=persist_dir_path,
+            persist_directory=persist_directory,
         )
         loader_train = CSVLoader(
             file_path=file_path,
@@ -66,14 +67,13 @@ def create_conversational_rag_chain(
         )
         all_documents = list(chunked(loader_train.load(), 3000))
 
-        for i, documents in enumerate(all_documents):
-            print(i)
+        for documents in all_documents:
             vectorstore.add_documents(documents=documents)
     else:
         vectorstore = Chroma(
-            collection_name='question_answer_collection',
+            collection_name=collection_name,
             embedding_function=embeddings,
-            persist_directory=persist_dir_path,
+            persist_directory=persist_directory,
         )
 
     retriever = vectorstore.as_retriever(
