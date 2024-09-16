@@ -31,3 +31,17 @@ SYSTEM_PROMPT: str = (
     """
     '\n\n{context}'
 )
+
+
+config: dict[str, float] = {
+    'chat_model_name': CHAT_MODEL_NAME,
+    'temperature': 0.1,
+    'embed_model_name': EMBED_MODEL_NAME,
+    'persist_dir_path': './vectorestore/',
+    'file_path': CSV_FILE_NAME,
+    'search_type': 'mmr',
+    'num_answers': 5,
+    'lambda_mult': 0.25,
+    'contextualize_q_system_prompt': CONTEXTUALIZE_Q_SYSTEM_PROMPT,
+    'system_prompt': SYSTEM_PROMPT,
+}

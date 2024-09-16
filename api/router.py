@@ -1,6 +1,4 @@
 from fastapi import APIRouter, HTTPException
-
-from typing import List
 from pydantic import BaseModel
 
 from api.model import get_rag_answer
@@ -14,7 +12,7 @@ class HistoryMessage(BaseModel):
 
 class History(BaseModel):
     session_id: str
-    history: List[HistoryMessage]
+    history: list[HistoryMessage]
 
 
 router = APIRouter(
@@ -26,7 +24,7 @@ router = APIRouter(
 @router.post('/get_answer/')
 async def get_answer(query: History):
     session_id = query.session_id
-    question_number = await SessionRepository.update_question_count(session_id)
+    _ = await SessionRepository.update_question_count(session_id)
 
     try:
         user_input = next(

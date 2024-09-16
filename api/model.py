@@ -1,22 +1,29 @@
+import os
+
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_chroma import Chroma
 from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_community.document_loaders import CSVLoader
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
-from langchain_community.document_loaders import CSVLoader
 from more_itertools import chunked
 
-from api.settings import (
-    CHAT_MODEL_NAME,
-    CSV_FILE_NAME,
-    EMBED_MODEL_NAME,
-    CONTEXTUALIZE_Q_SYSTEM_PROMPT,
-    SYSTEM_PROMPT,
-)
+from api.settings import config
+
+
+def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
+    return ChatPromptTemplate.from_messages(
+        [
+            ('system', prompt),
+            MessagesPlaceholder('history'),
+            ('human', '{input}'),
+        ]
+    )
+
 
 global_store = {}
 
@@ -28,62 +35,57 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
 
 
 def create_conversational_rag_chain(
-    model_name: str,
+    chat_model_name: str,
     temperature: float,
-    embed_name: str,
+    embed_model_name: str,
+    persist_dir_path: str,
     file_path: str,
+    search_type: str,
+    num_answers: int,
+    lambda_mult: float,
     contextualize_q_system_prompt: str,
     system_prompt: str,
-    search_type: str = 'mmr',
-    num_answers: int = 5,
-    lambda_mult: float = 0.25,
 ) -> RunnableWithMessageHistory:
-    loader_train = CSVLoader(
-        file_path=file_path,
-        metadata_columns=['id', 'category'],
-        content_columns=['question', 'content'],
-        encoding='utf-8',
-    )
-    embeddings = HuggingFaceEmbeddings(model_name=embed_name)
-    llm = ChatOllama(model=model_name, temperature=temperature)
-
-    chroma_collection = Chroma(
-        collection_name='question_answer_collection',
-        embedding_function=embeddings,
-        persist_directory='./vectorestore/',
+    llm = ChatOllama(model=chat_model_name, temperature=temperature)
+    embeddings = HuggingFaceEmbeddings(
+        model_name=embed_model_name,
+        model_kwargs={'device': 'cuda'},
     )
 
-    documents = loader_train.load()
-    batch_size = 3000
-    batches = list(chunked(documents, batch_size))
+    if not (os.path.exists(persist_dir_path) and os.listdir(persist_dir_path)):
+        vectorstore = Chroma(
+            collection_name='qa-chat-bot',
+            embedding_function=embeddings,
+            persist_directory=persist_dir_path,
+        )
+        loader_train = CSVLoader(
+            file_path=file_path,
+            metadata_columns=['id', 'category'],
+            content_columns=['question', 'content'],
+            encoding='utf-8',
+        )
+        all_documents = list(chunked(loader_train.load(), 3000))
 
-    for batch in batches:
-        chroma_collection.add_documents(documents=batch)
-
-    vectorstore = chroma_collection
+        for i, documents in enumerate(all_documents):
+            print(i)
+            vectorstore.add_documents(documents=documents)
+    else:
+        vectorstore = Chroma(
+            collection_name='question_answer_collection',
+            embedding_function=embeddings,
+            persist_directory=persist_dir_path,
+        )
 
     retriever = vectorstore.as_retriever(
         search_type=search_type,
         search_kwargs={'num_answers': num_answers, 'lambda_mult': lambda_mult},
     )
 
-    contextualize_q_prompt = ChatPromptTemplate.from_messages(
-        [
-            ('system', contextualize_q_system_prompt),
-            MessagesPlaceholder('chat_history'),
-            ('human', '{input}'),
-        ]
-    )
+    contextualize_q_prompt = get_chat_prompt(contextualize_q_system_prompt)
+    qa_prompt = get_chat_prompt(system_prompt)
+
     history_aware_retriever = create_history_aware_retriever(
         llm, retriever, contextualize_q_prompt
-    )
-
-    qa_prompt = ChatPromptTemplate.from_messages(
-        [
-            ('system', system_prompt),
-            MessagesPlaceholder('chat_history'),
-            ('human', '{input}'),
-        ]
     )
     question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
     rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
@@ -92,19 +94,12 @@ def create_conversational_rag_chain(
         rag_chain,
         get_session_history,
         input_messages_key='input',
-        history_messages_key='chat_history',
+        history_messages_key='history',
         output_messages_key='answer',
     )
 
 
-conversational_rag_chain = create_conversational_rag_chain(
-    model_name=CHAT_MODEL_NAME,
-    temperature=0.1,
-    embed_name=EMBED_MODEL_NAME,
-    file_path=CSV_FILE_NAME,
-    contextualize_q_system_prompt=CONTEXTUALIZE_Q_SYSTEM_PROMPT,
-    system_prompt=SYSTEM_PROMPT,
-)
+conversational_rag_chain = create_conversational_rag_chain(**config)
 
 
 def get_rag_answer(session_id: str, user_input: str) -> str:

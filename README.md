@@ -35,7 +35,7 @@ pip install -r ./ui/requirements-ui.txt
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull gemma2:2b
 
-uvicorn api.main:app --reload --host 95.161.221.20 --port 8000
+uvicorn api.main:app --reload --host 0.0.0.0 --port 80
 streamlit run ui/app.py 
 ```
 
