@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from repository import SessionRepository
 from model import get_rag_answer
+from repository import SessionRepository
 
 
 class HistoryMessage(BaseModel):
@@ -22,7 +22,7 @@ router = APIRouter(
 
 
 @router.post('/get_answer/')
-async def get_answer(query: History):
+async def get_answer(query: History) -> dict[str, str]:
     session_id = query.session_id
     _ = await SessionRepository.update_question_count(session_id)
 

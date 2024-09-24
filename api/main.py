@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
 
 from database import create_tables, delete_tables
 from router import router
@@ -26,4 +26,4 @@ app.include_router(router)
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=80)
+    uvicorn.run(app, host='127.0.0.1', port=80)

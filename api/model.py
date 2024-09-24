@@ -1,5 +1,6 @@
 import os
 
+import gdown
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_chroma import Chroma
@@ -12,7 +13,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from more_itertools import chunked
 
-from settings import config
+from settings import Settings
 
 
 def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
@@ -34,33 +35,27 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
     return global_store[session_id]
 
 
-def create_conversational_rag_chain(
-    chat_model_name: str,
-    temperature: float,
-    embed_model_name: str,
-    persist_directory: str,
-    collection_name: str,
-    file_path: str,
-    search_type: str,
-    num_answers: int,
-    lambda_mult: float,
-    contextualize_q_system_prompt: str,
-    system_prompt: str,
-) -> RunnableWithMessageHistory:
-    llm = ChatOllama(model=chat_model_name, temperature=temperature)
+def create_conversational_rag_chain() -> RunnableWithMessageHistory:
+    settings = Settings()
+
+    llm = ChatOllama(model=settings.chat_model_name, temperature=settings.temperature)
     embeddings = HuggingFaceEmbeddings(
-        model_name=embed_model_name,
+        model_name=settings.embed_model_name,
         model_kwargs={'device': 'cuda'},
     )
 
-    if not (os.path.exists(persist_directory) and os.listdir(persist_directory)):
+    if not (
+        os.path.exists(settings.persist_directory)
+        and os.listdir(settings.persist_directory)
+    ):
+        gdown.download(*settings.get_drive_settings(), quiet=False)
         vectorstore = Chroma(
-            collection_name=collection_name,
+            collection_name=settings.collection_name,
             embedding_function=embeddings,
-            persist_directory=persist_directory,
+            persist_directory=settings.persist_directory,
         )
         loader_train = CSVLoader(
-            file_path=file_path,
+            file_path=settings.csv_name,
             metadata_columns=['id', 'category'],
             content_columns=['question', 'content'],
             encoding='utf-8',
@@ -71,18 +66,21 @@ def create_conversational_rag_chain(
             vectorstore.add_documents(documents=documents)
     else:
         vectorstore = Chroma(
-            collection_name=collection_name,
+            collection_name=settings.collection_name,
             embedding_function=embeddings,
-            persist_directory=persist_directory,
+            persist_directory=settings.persist_directory,
         )
 
     retriever = vectorstore.as_retriever(
-        search_type=search_type,
-        search_kwargs={'num_answers': num_answers, 'lambda_mult': lambda_mult},
+        search_type=settings.search_type,
+        search_kwargs={
+            'num_answers': settings.num_answers,
+            'lambda_mult': settings.lambda_mult,
+        },
     )
 
-    contextualize_q_prompt = get_chat_prompt(contextualize_q_system_prompt)
-    qa_prompt = get_chat_prompt(system_prompt)
+    contextualize_q_prompt = get_chat_prompt(settings.contextualize_q_system_prompt)
+    qa_prompt = get_chat_prompt(settings.system_prompt)
 
     history_aware_retriever = create_history_aware_retriever(
         llm, retriever, contextualize_q_prompt
@@ -99,7 +97,7 @@ def create_conversational_rag_chain(
     )
 
 
-conversational_rag_chain = create_conversational_rag_chain(**config)
+conversational_rag_chain = create_conversational_rag_chain()
 
 
 def get_rag_answer(session_id: str, user_input: str) -> str:

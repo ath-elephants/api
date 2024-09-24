@@ -1,49 +1,45 @@
-import gdown
+from pydantic import Field, HttpUrl
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-CHAT_MODEL_NAME: str = 'gemma2:2b'
-EMBED_MODEL_NAME: str = 'ai-forever/ru-en-RoSBERTa'
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
+    chat_model_name: str = Field()
+    embed_model_name: str = Field()
 
-CSV_FILE_NAME: str = 'qa-chat-bot-data.csv'
-CSV_FILE_URL: str = 'https://drive.google.com/uc?id=1KAXDtvO5gNpG5FWv7RYyG1uW3ybi64TJ'
+    temperature: float = Field()
 
-gdown.download(CSV_FILE_URL, CSV_FILE_NAME, quiet=False)
+    persist_directory: str = Field()
+    collection_name: str = Field()
+    search_type: str = Field()
+    num_answers: int = Field()
+    lambda_mult: float = Field()
 
+    csv_name: str = Field()
+    csv_id: str = Field()
 
-CONTEXTUALIZE_Q_SYSTEM_PROMPT: str = """
-    Given a chat history and the latest user question which might reference
-    context in the chat history, formulate a standalone question which can be
-    understood without the chat history. Do NOT answer the question, just
-    reformulate it if needed and otherwise return it as is.
-"""
+    contextualize_q_system_prompt: str = Field("""
+        Given a chat history and the latest user question which might reference
+        context in the chat history, formulate a standalone question which can be
+        understood without the chat history. Do NOT answer the question, just
+        reformulate it if needed and otherwise return it as is.
+    """)
 
-SYSTEM_PROMPT: str = (
-    """
-    You are an internal technical support assistant for employees of a large company. 
+    system_prompt: str = Field(
+        """
+        You are an internal technical support assistant for employees of a large company. 
 
-    1. Use the entire conversation history with the user to understand the context of the inquiry.
-    2. Incorporate the pieces of information retrieved from the knowledge base,
-        which consists of pairs of questions (user inquiries) and fixed answers (responses).
-    3. Based on the current conversation, choose the most relevant question from
-        the retrieved pairs, and respond with the corresponding fixed answer from the knowledge base.
-    4. You must provide responses exactly as they appear in the knowledge base,
-        without any modifications. All responses must be in Russian.
-    """
-    '\n\n{context}'
-)
+        1. Use the entire conversation history with the user to understand the context of the inquiry.
+        2. Incorporate the pieces of information retrieved from the knowledge base,
+            which consists of pairs of questions (user inquiries) and fixed answers (responses).
+        3. Based on the current conversation, choose the most relevant question from
+            the retrieved pairs, and respond with the corresponding fixed answer from the knowledge base.
+        4. You must provide responses exactly as they appear in the knowledge base,
+            without any modifications. All responses must be in Russian.
+        """
+        '\n\n{context}'
+    )
 
-
-config: dict[str, float] = {
-    'chat_model_name': CHAT_MODEL_NAME,
-    'temperature': 0.1,
-    'embed_model_name': EMBED_MODEL_NAME,
-    'persist_directory': './vectorestore/',
-    'collection_name': 'qa-chat-bot',
-    'file_path': CSV_FILE_NAME,
-    'search_type': 'mmr',
-    'num_answers': 5,
-    'lambda_mult': 0.25,
-    'contextualize_q_system_prompt': CONTEXTUALIZE_Q_SYSTEM_PROMPT,
-    'system_prompt': SYSTEM_PROMPT,
-}
+    def get_drive_settings(self) -> tuple[HttpUrl, str]:
+        return f'https://drive.google.com/uc?id={self.csv_id}', self.csv_name
