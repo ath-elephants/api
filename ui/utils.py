@@ -13,33 +13,30 @@ def startup_page_ui() -> str:
         session_id = str(uuid.uuid4())
         cookie_manager.set('ajs_anonymous_id', session_id)
 
-    page_bg_img = """
+    st_body = """
         <style>
         .st-emotion-cache-13k62yr > div {
-        background: linear-gradient(#000000, #003200);
+            background: linear-gradient(#000000, #003200);
         }
         [data-testid="stHeader"] {
-        background: rgba(0,0,0,0);
+            background: rgba(0,0,0,0);
         }
         .st-emotion-cache-1p2n2i4 div {
-        background: rgba(0,0,0,0);
-        color: rgb(250, 250, 250);
+            background: rgba(0,0,0,0);
+            color: rgb(250, 250, 250);
         }
         .st-bu {
-        background-color: rgb(38, 39, 48);
+            background-color: rgb(38, 39, 48);
         }
         .st-b6 > div {
-        color: rgb(250, 250, 250);
+            color: rgb(250, 250, 250);
         }
         </style>
-        """
+    """
 
-    st.markdown(page_bg_img, unsafe_allow_html=True)
+    st.markdown(st_body, unsafe_allow_html=True)
 
-    st.logo(
-        './ui/x5_tech_logo.png',
-        link='https://x5-tech.ru/',
-    )
+    st.logo('x5_tech_logo.png', link='https://x5-tech.ru/')
     st.html("""
         <style>
         [alt=Logo] {
