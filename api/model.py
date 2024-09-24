@@ -104,7 +104,7 @@ conversational_rag_chain = create_conversational_rag_chain(**config)
 
 def get_rag_answer(session_id: str, user_input: str) -> str:
     response = conversational_rag_chain.invoke(
-        {'input': user_input},
+        user_input,
         config={'configurable': {'session_id': session_id}},
     )
     return response['answer']

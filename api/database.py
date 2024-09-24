@@ -8,7 +8,7 @@ class Model(DeclarativeBase):
     pass
 
 
-class Session(Model):
+class SessionModel(Model):
     __tablename__ = 'sessions'
     id: Mapped[int] = mapped_column(primary_key=True)
     session_id: Mapped[str]
