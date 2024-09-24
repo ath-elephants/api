@@ -9,10 +9,10 @@ RUN curl -O https://ollama.com/download/ollama-linux && \
     mv ollama-linux /usr/local/bin/ollama && \
     ollama pull gemma2:2b
 
-COPY ./api/requirements-api.txt /app/api/requirements-api.txt
 WORKDIR /app
-RUN pip install --no-cache-dir -r ./api/requirements-api.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./api /app/api
+COPY . .
 
-CMD ["uvicorn", "api.router:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "router:app", "--host=0.0.0.0", "--port=80"]
