@@ -38,10 +38,13 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
 def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     settings = Settings()
 
-    llm = ChatOllama(model=settings.chat_model_name, temperature=settings.temperature)
+    llm = ChatOllama(
+        model=settings.chat_model_name,
+        temperature=settings.temperature,
+    )
     embeddings = HuggingFaceEmbeddings(
         model_name=settings.embed_model_name,
-        model_kwargs={'device': 'cuda'},
+        model_kwargs={'device': settings.device},
     )
 
     if not (

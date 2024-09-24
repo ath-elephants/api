@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     chat_model_name: str = Field()
     embed_model_name: str = Field()
 
+    device: str = Field()
     temperature: float = Field()
 
     persist_directory: str = Field()
