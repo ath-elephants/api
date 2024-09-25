@@ -1,13 +1,43 @@
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ./data/ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    entrypoint: [ "/bin/sh", "-c" ]
+    command: >
+      "ollama serve &      
+       sleep 10 &&
+       ollama pull gemma2:2b
+       tail -f /dev/null"
+    ports:
+      - 11434:11434
+    networks:
+      - backend
+    restart: unless-stopped
+
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
     container_name: api
+    volumes:
+      - ./data/model:/root/.cache/huggingface
+    env_file:
+      - .env
     ports:
-      - "8000:80"
+      - 80:80
     networks:
       - backend
+    depends_on:
+      - ollama
     restart: unless-stopped
 
   ui:
@@ -15,14 +45,20 @@ services:
       context: ./ui
       dockerfile: Dockerfile
     container_name: ui
+    env_file:
+      - .env
     ports:
-      - "8501:8501"
-    depends_on:
-      - api
+      - 8501:8501
     networks:
       - backend
+    depends_on:
+      - api
     restart: unless-stopped
 
 networks:
   backend:
     driver: bridge
+
+volumes:
+  ollama:
+  model:

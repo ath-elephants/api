@@ -46,6 +46,7 @@ def startup_page_ui() -> str:
     """)
 
     st.title('Поддержка пользователей')
+    st.set_page_config(page_title='X5 Tech Chatbot', page_icon='🤖')
 
     return session_id
 

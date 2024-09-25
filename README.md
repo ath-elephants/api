@@ -4,7 +4,7 @@
 
 Репозиторий с экспериментами и наработками: <https://github.com/ath-elephants/research>
 
-Развернуть в Docker на сервере можно с помощью следующего набора команд:
+Развернуть Docker на сервере можно с помощью следующего набора команд:
 
 ```bash
 sudo apt-get update
@@ -35,7 +35,7 @@ pip install -r ./ui/requirements-ui.txt
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull gemma2:2b
 
-uvicorn api.main:app --reload --host 0.0.0.0 --port 80
+uvicorn main:app --host 127.0.0.1 --port 80
 streamlit run ui/app.py 
 ```
 

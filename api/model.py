@@ -41,6 +41,7 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     llm = ChatOllama(
         model=settings.chat_model_name,
         temperature=settings.temperature,
+        base_url='http://ollama:11434/',
     )
     embeddings = HuggingFaceEmbeddings(
         model_name=settings.embed_model_name,
