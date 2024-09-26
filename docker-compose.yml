@@ -4,19 +4,15 @@ services:
     container_name: ollama
     volumes:
       - ./data/ollama:/root/.ollama
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
     entrypoint: [ "/bin/sh", "-c" ]
     command: >
       "ollama serve &      
        sleep 10 &&
        ollama pull gemma2:2b
        tail -f /dev/null"
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
     ports:
       - 11434:11434
     networks:
@@ -30,8 +26,12 @@ services:
     container_name: api
     volumes:
       - ./data/model:/root/.cache/huggingface
+      - ./data/vectorestore:/app/vectorestore
     env_file:
       - .env
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
     ports:
       - 80:80
     networks:

@@ -6,12 +6,7 @@ from extra_streamlit_components import CookieManager
 
 
 def startup_page_ui() -> str:
-    cookie_manager = CookieManager()
-    session_id: str = cookie_manager.get(cookie='ajs_anonymous_id')
-
-    if session_id is None:
-        session_id = str(uuid.uuid4())
-        cookie_manager.set('ajs_anonymous_id', session_id)
+    st.set_page_config(page_title='X5 Tech Chatbot', page_icon='🤖')
 
     st_body = """
         <style>
@@ -33,7 +28,6 @@ def startup_page_ui() -> str:
         }
         </style>
     """
-
     st.markdown(st_body, unsafe_allow_html=True)
 
     st.logo('x5_tech_logo.png', link='https://x5-tech.ru/')
@@ -46,7 +40,13 @@ def startup_page_ui() -> str:
     """)
 
     st.title('Поддержка пользователей')
-    st.set_page_config(page_title='X5 Tech Chatbot', page_icon='🤖')
+
+    cookie_manager = CookieManager()
+    session_id: str = cookie_manager.get(cookie='ajs_anonymous_id')
+
+    if session_id is None:
+        session_id = str(uuid.uuid4())
+        cookie_manager.set('ajs_anonymous_id', session_id)
 
     return session_id
 

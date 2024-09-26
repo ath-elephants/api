@@ -1,8 +1,6 @@
 *.db
 *.csv
-*.sqlite3
-*.bin
-*.pickle
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
